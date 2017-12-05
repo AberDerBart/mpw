@@ -32,10 +32,15 @@ def addSleep(args):
 	c.sendmessage("scheduler","alarm "+args.time)
 
 def cancel(args):
-	c.sendmessage("scheduler","cancel "+args.index)
+	tasks=getTasks()
+	if(int(args.index) < len(tasks)):
+		c.sendmessage("scheduler","cancel "+args.index)
+	else:
+		print("Invalid index: "+str(args.index),file=sys.stderr)
+		exit(-1)
 
 def listTasks(args):
-	tasks=getTasks()["data"]
+	tasks=getTasks()
 	if(tasks):
 		print(tabulate(tasks,headers="keys"))
 
@@ -63,7 +68,7 @@ def main():
 	listParser=subParsers.add_parser("list",help="lists the scheduled tasks")
 
 	cancelParser=subParsers.add_parser("cancel",help="cancels the specified tasks")
-	cancelParser.add_argument("index", help="index of the task to be canceled")
+	cancelParser.add_argument("index", help="index of the task to be canceled",type=int)
 
 	args=parser.parse_args()
 
