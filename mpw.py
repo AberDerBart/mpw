@@ -3,6 +3,7 @@ import mpd
 import json
 import argparse
 import sys
+import os
 from tabulate import tabulate
 
 c=mpd.MPDClient()
@@ -18,8 +19,8 @@ def connect(host="localhost",port=6600):
 			return False
 
 		return True
-	except ConnectionRefusedError:
-		print("Connection refused",file=sys.stderr)
+	except Exception as e:
+		print(str(e),file=sys.stderr)
 		return False
 	return False
 
@@ -67,6 +68,8 @@ callDict={
 }
 
 def main():
+	fallbackHost=os.environ.get("MPD_HOST") or "localhost"
+
 	parser=argparse.ArgumentParser()
 	subParsers=parser.add_subparsers(dest="command")
 	subParsers.required=False
@@ -82,9 +85,13 @@ def main():
 	cancelParser=subParsers.add_parser("cancel",help="cancels the specified tasks")
 	cancelParser.add_argument("index", help="index of the task to be canceled",type=int)
 
+	parser.add_argument("--host", help="mpd host to connect to",default=fallbackHost)
+	parser.add_argument("--port", help="port to connect on",default=6600,type=int)
+
 	args=parser.parse_args()
 
-	if(not connect()):
+
+	if(not connect(args.host,args.port)):
 		exit(-1)
 
 	callDict[args.command](args)
