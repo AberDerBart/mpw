@@ -35,6 +35,10 @@ def cancel(args):
 	tasks=getTasks()
 	if(int(args.index) < len(tasks)):
 		c.sendmessage("scheduler","cancel "+str(args.index))
+		newTasks=getTasks()
+		if(len(newTasks) >= len(tasks)):
+			print("Error canceling task #"+str(args.index),file=sys.stderr)
+			exit(-1)
 	else:
 		print("Invalid index: "+str(args.index),file=sys.stderr)
 		exit(-1)
