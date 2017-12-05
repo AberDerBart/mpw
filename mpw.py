@@ -4,6 +4,7 @@ import json
 import argparse
 import sys
 import os
+import parse
 from tabulate import tabulate
 
 c=mpd.MPDClient()
@@ -24,6 +25,12 @@ def connect(host="localhost",port=6600):
 		return False
 	return False
 
+def timeValid(timeString):
+	try:
+		return None != (parse.parse("+{offset:d}", timeString) or parse.parse("{time:tt}", timeString))
+	except:
+		return False
+
 def getTasks():
 	tasks=None
 	c.sendmessage("scheduler","list_json")
@@ -36,13 +43,19 @@ def getTasks():
 	else:
 		return None
 
-def addAlarm(args):
+def addAlarm(args,parser):
+	if(not timeValid(args.time)):
+		parser.error("Invalid time format.")
+		exit(-1)
 	c.sendmessage("scheduler","alarm "+args.time)
 
-def addSleep(args):
+def addSleep(args,parser):
+	if(not timeValid(args.time)):
+		parser.error("Invalid time format.")
+		exit(-1)
 	c.sendmessage("scheduler","alarm "+args.time)
 
-def cancel(args):
+def cancel(args,parser):
 	tasks=getTasks()
 	if(int(args.index) < len(tasks)):
 		c.sendmessage("scheduler","cancel "+str(args.index))
@@ -51,10 +64,9 @@ def cancel(args):
 			print("Error canceling task #"+str(args.index),file=sys.stderr)
 			exit(-1)
 	else:
-		print("Invalid index: "+str(args.index),file=sys.stderr)
-		exit(-1)
+		parser.error("Index out of bounds")
 
-def listTasks(args):
+def listTasks(args,parser):
 	tasks=getTasks()
 	if(tasks):
 		print(tabulate(tasks,headers="keys"))
@@ -94,7 +106,7 @@ def main():
 	if(not connect(args.host,args.port)):
 		exit(-1)
 
-	callDict[args.command](args)
+	callDict[args.command](args,parser)
 	
 
 
