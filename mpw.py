@@ -3,6 +3,7 @@ import mpd
 import json
 import argparse
 import sys
+from tabulate import tabulate
 
 c=mpd.MPDClient()
 
@@ -30,8 +31,12 @@ def addSleep(args):
 def cancel(args):
 	c.sendmessage("scheduler","cancel "+args.index)
 
-def listTasks():
-	print("list")
+def listTasks(args):
+	tasks=getTasks()["data"]
+	if(tasks):
+		print(tabulate(tasks,headers="keys"))
+
+
 
 callDict={
 	"cancel":cancel,
