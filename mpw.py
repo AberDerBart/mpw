@@ -7,11 +7,21 @@ from tabulate import tabulate
 
 c=mpd.MPDClient()
 
-def connect():
-	c.connect("localhost",6600)
+def connect(host="localhost",port=6600):
+	try:
+		c.connect(host,port)
 
-	c.subscribe("scheduled")
-	return True
+		c.subscribe("scheduled")
+		
+		if(not "scheduler" in c.channels()):
+			print("MpdScheduler not found.",file=sys.stderr)
+			return False
+
+		return True
+	except ConnectionRefusedError:
+		print("Connection refused",file=sys.stderr)
+		return False
+	return False
 
 def getTasks():
 	tasks=None
@@ -47,8 +57,6 @@ def listTasks(args):
 	tasks=getTasks()
 	if(tasks):
 		print(tabulate(tasks,headers="keys"))
-
-
 
 callDict={
 	"cancel":cancel,
