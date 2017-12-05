@@ -34,7 +34,7 @@ def addSleep(args):
 def cancel(args):
 	tasks=getTasks()
 	if(int(args.index) < len(tasks)):
-		c.sendmessage("scheduler","cancel "+args.index)
+		c.sendmessage("scheduler","cancel "+str(args.index))
 	else:
 		print("Invalid index: "+str(args.index),file=sys.stderr)
 		exit(-1)
