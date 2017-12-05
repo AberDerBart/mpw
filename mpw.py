@@ -14,13 +14,16 @@ def connect():
 	return True
 
 def getTasks():
-	alarms=None
+	tasks=None
 	c.sendmessage("scheduler","list_json")
 	c.idle("message")
 	for m in c.readmessages():
 		if(m["channel"]=="scheduled"):
-			alarms=json.loads(m["message"])
-	return alarms
+			tasks=json.loads(m["message"])
+	if "data" in tasks:
+		return tasks["data"]
+	else:
+		return None
 
 def addAlarm(args):
 	c.sendmessage("scheduler","alarm "+args.time)
