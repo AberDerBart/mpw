@@ -6,7 +6,10 @@ import sys
 
 c=mpd.MPDClient()
 
-def isAvailable():
+def connect():
+	c.connect("localhost",6600)
+
+	c.subscribe("scheduled")
 	return True
 
 def getTasks():
@@ -18,14 +21,25 @@ def getTasks():
 			alarms=json.loads(m["message"])
 	return alarms
 
-def addAlarm(time):
-	c.sendmessage("scheduler","alarm "+time)
+def addAlarm(args):
+	c.sendmessage("scheduler","alarm "+args.time)
 
-def addSleep(time):
-	c.sendmessage("scheduler","alarm "+time)
+def addSleep(args):
+	c.sendmessage("scheduler","alarm "+args.time)
 
-def cancel(index):
-	c.sendmessage("scheduler","cancel "+index)
+def cancel(args):
+	c.sendmessage("scheduler","cancel "+args.index)
+
+def listTasks():
+	print("list")
+
+callDict={
+	"cancel":cancel,
+	"sleep" :addSleep,
+	"alarm" :addAlarm,
+	"list"  :listTasks,
+	None    :listTasks
+}
 
 def main():
 	parser=argparse.ArgumentParser()
@@ -45,18 +59,12 @@ def main():
 
 	args=parser.parse_args()
 
-	c.connect("localhost",6600)
-
-	c.subscribe("scheduled")
-
-	if(not isAvailable()):
-		print("MpdScheduler not available.",file=sys.stdout)
+	if(not connect()):
 		exit(-1)
 
-	if(not args.command or args.command=="list"):
-		print("list")
-	else:
-		pass
+	callDict[args.command](args)
+	
+
 
 if __name__ == '__main__':
 	main()
