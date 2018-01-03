@@ -48,12 +48,14 @@ def addAlarm(args,parser):
 		parser.error("Invalid time format.")
 		exit(-1)
 	c.sendmessage("scheduler","alarm "+args.time)
+	listTasks(args,parser)
 
 def addSleep(args,parser):
 	if(not timeValid(args.time)):
 		parser.error("Invalid time format.")
 		exit(-1)
 	c.sendmessage("scheduler","alarm "+args.time)
+	listTasks(args,parser)
 
 def cancel(args,parser):
 	tasks=getTasks()
@@ -63,6 +65,7 @@ def cancel(args,parser):
 		if(len(newTasks) >= len(tasks)):
 			print("Error canceling task #"+str(args.index),file=sys.stderr)
 			exit(-1)
+		listTasks(args,parser)
 	else:
 		parser.error("Index out of bounds")
 
